@@ -1,6 +1,6 @@
 <?php
 
-namespace Packages\DataGrid;
+namespace Rufaidulk\DataGrid;
 
 final class DefaultAction
 {

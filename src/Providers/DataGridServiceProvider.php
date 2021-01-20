@@ -1,11 +1,11 @@
 <?php
 
-namespace Packages\DataGrid\Providers;
+namespace Rufaidulk\DataGrid\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use Packages\DataGrid\View\Components\DataTable;
-use Packages\DataGrid\View\Components\Filter;
+use Rufaidulk\DataGrid\View\Components\DataTable;
+use Rufaidulk\DataGrid\View\Components\Filter;
 
 /**
 * DataGridServiceProvider
