@@ -21,7 +21,7 @@
         "laravel": {
             "providers": [
                 "Rufaidulk\\DataGrid\\Providers\\DataGridServiceProvider"
-            ],
+            ]
         }
     },
     "minimum-stability": "dev",
