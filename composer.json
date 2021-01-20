@@ -1,0 +1,28 @@
+{
+    "name": "rufaidulk/data-grid",
+    "description": "Grid view for laravel",
+    "type": "library",
+    "require": {
+        "php": ">=7.3"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "rufaidulk",
+            "email": "rufaidulk999@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Rufaidulk\\DataGrid\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Rufaidulk\\DataGrid\\Providers\\DataGridServiceProvider"
+            ],
+        }
+    },
+    "minimum-stability": "dev",
+}
