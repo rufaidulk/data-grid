@@ -4,8 +4,18 @@
             <tr>
                 <th>#</th>
                 
-                @foreach ($grid->getTableHeaders() as $header)
-                    <th>{{ $header }}</th>
+                @foreach ($grid->getTableHeaders() as $attribute => $label)
+                    <th>
+                        @if ($grid->isSortable($attribute))
+                            <a href="{{ route(request()->route()->getName(), ['sort' => $attribute, 'orderby' => $grid->getOrderBy()]) }}">
+                                {{ $label }}
+                            </a>
+                        @else
+                            <a href="#">
+                                {{ $label }}
+                            </a>
+                        @endif
+                    </th>
                 @endforeach
 
                 <th class="action-column">&nbsp;</th>

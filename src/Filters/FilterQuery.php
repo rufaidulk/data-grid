@@ -45,6 +45,8 @@ final class FilterQuery
 
             ++$key;
         }
+
+        $this->applySorting();
     }
 
     private function filterParamHasAttribute($attribute)
@@ -74,6 +76,20 @@ final class FilterQuery
         
         $columnFilter = new FilterOption($filterOptions, $attribute);
         $this->query = $columnFilter->addFilterWhere($this->query, $this->filterParams[$attribute]);
+    }
+
+    private function applySorting()
+    {
+        if (! isset($this->filterParams['sort'])) {
+            return;
+        }
+        
+        $orderBy = 'asc';
+        if (isset($this->filterParams['orderby']) && $this->filterParams['orderby'] == 'desc') {
+            $orderBy = 'desc';
+        }
+
+        $this->query->orderBy($this->filterParams['sort'], $orderBy);
     }
 
 }

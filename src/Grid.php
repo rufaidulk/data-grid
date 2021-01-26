@@ -16,6 +16,7 @@ abstract class Grid
     public $tableClass;
 
     private $query;
+    private $orderBy;
     private $filters;
     private $paginator;
     private $tableBody;
@@ -43,13 +44,21 @@ abstract class Grid
     public function render()
     {
         $this->createGridView();
-        
+        $this->restoreSortOrder();
+
         return view('rufaidulk::grid.index', ['grid' => $this]);
     }
 
     public function getTableHeaders()
     {
-        return array_column($this->tableColumns, 'label');
+        $attributes = array_keys($this->tableColumns);
+        $attributes = array_filter($attributes, function ($attribute) {
+            return $attribute != 'action';
+        });
+        $labels = array_column($this->tableColumns, 'label');
+        $headers = array_combine($attributes, $labels);
+        
+        return $headers;
     }
 
     public function getTableFilters()
@@ -65,6 +74,21 @@ abstract class Grid
     public function renderPaginationLinks()
     {
         return $this->paginator->links($this->getPaginationLinkView());
+    }
+
+    public function isSortable($attribute)
+    {
+        $column = $this->tableColumns[$attribute];
+        if (array_key_exists('sort', $column) && ! $column['sort']) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function getOrderBy()
+    {
+        return $this->orderBy;
     }
 
     public function getTableClass()
@@ -175,6 +199,15 @@ abstract class Grid
         $actionHtml = (new DefaultActionColumn($this->tableColumns['action']['routePrefix'], $model))->render();
 
         return $actionHtml;
+    }
+
+    private function restoreSortOrder()
+    {
+        $this->orderBy = 'asc';
+
+        if (isset($this->filterParams['orderby']) && $this->filterParams['orderby'] == 'asc') {
+            $this->orderBy = 'desc';
+        }
     }
 
     public function scripts()
