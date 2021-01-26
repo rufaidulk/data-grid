@@ -2,6 +2,13 @@
     "name": "rufaidulk/data-grid",
     "description": "Grid view for laravel",
     "type": "library",
+    "keywords": [
+      "rufaidulk",
+      "bootstrap",
+      "laravel-grid",
+      "laravel",
+      "laravel8"
+    ],
     "require": {
         "php": ">=7.3"
     },
