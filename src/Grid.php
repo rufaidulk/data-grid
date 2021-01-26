@@ -6,7 +6,7 @@ use InvalidArgumentException;
 use UnexpectedValueException;
 use Rufaidulk\DataGrid\Filters\FilterRow;
 use Rufaidulk\DataGrid\Filters\FilterQuery;
-use Rufaidulk\DataGrid\Columns\DefaultActionColumn;
+use Rufaidulk\DataGrid\Columns\ActionColumn;
 
 abstract class Grid
 {
@@ -196,7 +196,7 @@ abstract class Grid
             throw new InvalidArgumentException('Action route prefix must be defined');
         }
 
-        $actionHtml = (new DefaultActionColumn($this->tableColumns['action']['routePrefix'], $model))->render();
+        $actionHtml = (new ActionColumn($this->tableColumns['action'], $model))->render();
 
         return $actionHtml;
     }
