@@ -4,84 +4,101 @@ namespace Rufaidulk\DataGrid;
 
 use InvalidArgumentException;
 use UnexpectedValueException;
+use Rufaidulk\DataGrid\Filters\FilterRow;
+use Rufaidulk\DataGrid\Filters\FilterQuery;
+use Rufaidulk\DataGrid\Columns\DefaultActionColumn;
 
 abstract class Grid
 {
-    protected $query;
-    protected $filters;
-    protected $tableClass = 'table table-small-font max-col min-col table-1';
-    protected $tableColumns = [];
-    
+    const DEFAULT_PAGE_SIZE = 20;
+
+    public $pageSize;
+    public $tableClass;
+
+    private $query;
+    private $filters;
+    private $paginator;
+    private $tableBody;
+    private $tableColumns;
     private $filterParams;
 
     public function __construct($filterParams = [])
     {
-        $this->filterParams = $filterParams;    
+        $this->filterParams = $filterParams;
+        $this->init();
     }
 
     abstract public function gridQuery();
     abstract public function columns();
 
-    public function render()
+    private function init()
     {
+        $this->tableBody = '';
         $this->filters = [];
         $this->query = $this->gridQuery();
         $this->setColumns();
         $this->setFilters();
-        return view('datagrid::index', $this->getViewData());
     }
 
-    public function scripts()
+    public function render()
     {
-        $scripts =<<<'EOT'
-            <script type="application/javascript">
-                function confirmDelete(formId)
-                {
-                    swal.fire({
-                        title: '<p class="font-weight-normal" style="font-size: 20px;">Are you sure that you want to delete this item?</p>',
-                        confirmButtonText: 'Yes',
-                        cancelButtonText: 'No',
-                        showCancelButton: true
-                    }).then(function(result) {
-                        if (result.value) {
-                            document.getElementById(formId).submit();
-                        }
-                    });
-                }
-            </script>
-        EOT;
-
-        return $scripts;
+        $this->createGridView();
+        
+        return view('rufaidulk::grid.index', ['grid' => $this]);
     }
 
-    private function getViewData()
-    {
-        return [
-            'tableClass' => $this->tableClass,
-            'tableHeaders' => $this->getHeaders(),
-            'queryResult' => $this->getGridView(),
-            'filters' => $this->filters,
-        ];
-    }
-
-    private function getHeaders()
+    public function getTableHeaders()
     {
         return array_column($this->tableColumns, 'label');
+    }
+
+    public function getTableFilters()
+    {
+        return $this->filters;
+    }
+
+    public function getTableBody()
+    {
+        return $this->tableBody;
+    }
+
+    public function renderPaginationLinks()
+    {
+        return $this->paginator->links($this->getPaginationLinkView());
+    }
+
+    public function getTableClass()
+    {
+        return $this->tableClass ?? 'table table-small-font max-col min-col table-1';
+    }
+
+    private function getPaginationLinkView()
+    {
+        return 'rufaidulk::pagination.bootstrap4';
+    }
+
+    private function setFilters()
+    {
+        $this->filters = (new FilterRow($this->tableColumns))->handle();
     }
 
     private function setColumns()
     {
         $this->tableColumns = $this->columns();
+
         if (! is_array(($this->tableColumns))) {
             throw new UnexpectedValueException('Columns must be an array');
         }
-
     }
-
-    private function getGridView()
+    
+    private function createGridView()
     {
         $result = $this->getQueryResult();
-        $tableBody = '';
+        if ($result->total() == 0) {
+            $colspan = count($this->tableColumns) + 2;
+            $this->tableBody = "<tr><td colspan='{$colspan}'>No records found</td></tr>";
+            return;
+        }
         
         foreach ($result as $key => $value)
         {
@@ -103,88 +120,44 @@ abstract class Grid
                 $html .= "<td>{$data}</td>";
             }
 
-            $tableBody .= $html;
+            $this->tableBody .= $html;
             $actionButtons = $this->getActionButtons($result[$key]);
-            $tableBody .= "<td>{$actionButtons}</td>";
+            $this->tableBody .= "<td>{$actionButtons}</td>";
             
-            $tableBody .= "</tr>";
+            $this->tableBody .= "</tr>";
         }
-
-        return $tableBody;
     }
 
     private function getQueryResult()
-    {   
+    {
         if (! empty($this->filterParams)) {
             $this->applyFilters();
         }
 
-        return $this->query->get();
+        $this->paginator = $this->query->paginate($this->getPageSize())->withQueryString();
+        
+        return $this->paginator;
     }
 
     private function applyFilters()
     {
-        $key = 1;
-        foreach ($this->tableColumns as $attribute => $column)
-        {
-            if (! array_key_exists('filter', $column) || ! is_bool($column['filter'])) {
-                ++$key;
-                continue;
-            }
-            
-            if ($column['filter'] && empty($column['filterOptions']) && array_key_exists($attribute, $this->filterParams)) {
-                $this->filters[$key]['value'] = $this->filterParams[$attribute];
-                $this->query = $this->query->where($attribute, 'like', '%' . $this->filterParams[$attribute] . '%');
-            }
-            else if ($column['filter'] && ! empty($column['filterOptions']) && array_key_exists($attribute, $this->filterParams)) 
-            {
-                $this->filters[$key]['value'] = $this->filterParams[$attribute];
-                $this->applyFilterByFilterOptions($column['filterOptions'], $attribute);
-            }
+        $filterQuery = new FilterQuery($this->tableColumns, $this->filters, $this->filterParams, $this->query);
 
-            ++$key;
-        }
+        list($this->query, $this->filters) = $filterQuery->handle();
     }
 
-    private function applyFilterByFilterOptions($filterOptions, $attribute)
+    private function getPageSize()
     {
-        if (empty($this->filterParams[$attribute])) {
-            return;
-        }
-        
-        $columnFilter = new Filter($filterOptions, $attribute);
-        $this->query = $columnFilter->addFilterWhere($this->query, $this->filterParams[$attribute]);
-    }
-
-    private function setFilters()
-    {
-        foreach ($this->tableColumns as $attribute => $column)
+        if ($this->pageSize) 
         {
-            if (! array_key_exists('filter', $column) || ! is_bool($column['filter'])) {
-                array_push($this->filters, null);
-                continue;
+            if (! is_numeric($this->pageSize)) {
+                throw new InvalidArgumentException('Page size must be a numerical value');
             }
-            
-            if ($column['filter'] && empty($column['filterOptions'])) {
-                array_push($this->filters, ['name' => $attribute, 'type' => 'text', 'value' => '']);
-            }
-            else if ($column['filter'] && ! empty($column['filterOptions'])) {
-                $columnFilter = new Filter($column['filterOptions'], $attribute);
-                $res = $columnFilter->handle();
-                array_push($this->filters, $res);
-            }
-            else {
-                array_push($this->filters, null);
-            }
-            
+
+            return $this->pageSize;
         }
 
-        if (empty(array_filter($this->filters))) {
-            $this->filters = [];
-        }
-        else {
-            array_unshift($this->filters, null);
-        }
+        return self::DEFAULT_PAGE_SIZE;
     }
 
     private function getActionButtons($model)
@@ -199,9 +172,25 @@ abstract class Grid
             throw new InvalidArgumentException('Action route prefix must be defined');
         }
 
-        $actionHtml = (new DefaultAction($this->tableColumns['action']['routePrefix'], $model))->render();
+        $actionHtml = (new DefaultActionColumn($this->tableColumns['action']['routePrefix'], $model))->render();
 
         return $actionHtml;
+    }
+
+    public function scripts()
+    {
+        $scripts =<<<'EOT'
+            <script type="application/javascript">
+                function confirmDelete(formId)
+                {
+                    if (confirm('Are you sure that you want to delete this item?')) {
+                        document.getElementById(formId).submit();
+                    }
+                }
+            </script>
+        EOT;
+
+        return $scripts;
     }
     
 }

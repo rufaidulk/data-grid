@@ -2,10 +2,7 @@
 
 namespace Rufaidulk\DataGrid\Providers;
 
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use Rufaidulk\DataGrid\View\Components\DataTable;
-use Rufaidulk\DataGrid\View\Components\Filter;
 
 /**
 * DataGridServiceProvider
@@ -19,9 +16,7 @@ class DataGridServiceProvider extends ServiceProvider
     */
     public function boot()
     {
-        $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'datagrid');
-        Blade::component('x-datatable', DataTable::class);
-        // Blade::component('x-filter', Filter::class);
+        $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'rufaidulk');
     }
 
     /**
