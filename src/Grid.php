@@ -12,18 +12,88 @@ abstract class Grid
 {
     const DEFAULT_PAGE_SIZE = 20;
 
+    /**
+     * Number of items per page
+     * 
+     * @var int 
+     */
     public $pageSize;
+
+    /**
+     * CSS class selector for html table tag
+     * 
+     * @var string
+     */
     public $tableClass;
+
+    /**
+     * CSS class selector for grid
+     * 
+     * @var string
+     */
     public $wrapperClass;
+
+    /**
+     * Status of pagination summary. if it is set to false, summary will be hidden
+     * 
+     * @var bool
+     */
     public $paginationSummary;
+
+    /**
+     * CSS class selector of pagination summary content
+     * 
+     * @var string
+     */
     public $paginationSummaryClass;
 
+    /**
+     * Data source query
+     * 
+     * @var \Illuminate\Database\Eloquent\Builder
+     */
     private $query;
+
+    /**
+     * sorting order. possible values are desc and asc
+     * 
+     * @var string
+     */
     private $orderBy;
+
+    /**
+     * Grid fitlers
+     * 
+     * @var array
+     */
     private $filters;
+
+    /**
+     * query paginator
+     * 
+     * @var \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
     private $paginator;
+
+    /**
+     * Grid table body content
+     * 
+     * @var string
+     */
     private $tableBody;
+
+    /**
+     * Defined table columns
+     * 
+     * @var array
+     */
     private $tableColumns;
+
+    /**
+     * filter params
+     * 
+     * @var array
+     */
     private $filterParams;
 
     public function __construct($filterParams = [])
@@ -35,6 +105,9 @@ abstract class Grid
     abstract public function gridQuery();
     abstract public function columns();
 
+    /**
+     * initiliazes the properties
+     */
     private function init()
     {
         $this->tableBody = '';
@@ -44,6 +117,11 @@ abstract class Grid
         $this->setFilters();
     }
 
+    /**
+     * Renders the grid view
+     * 
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
         $this->createGridView();
@@ -52,6 +130,9 @@ abstract class Grid
         return view('rufaidulk::grid.index', ['grid' => $this]);
     }
 
+    /**
+     * @return array
+     */
     public function getTableHeaders()
     {
         $attributes = array_keys($this->tableColumns);
@@ -64,21 +145,35 @@ abstract class Grid
         return $headers;
     }
 
+    /**
+     * @return array
+     */
     public function getTableFilters()
     {
         return $this->filters;
     }
 
+    /**
+     * @return string
+     */
     public function getTableBody()
     {
         return $this->tableBody;
     }
 
+    /**
+     * @return string
+     */
     public function renderPaginationLinks()
     {
         return $this->paginator->links($this->getPaginationLinkView());
     }
 
+    /**
+     * @param string
+     * 
+     * @return bool
+     */
     public function isSortable($attribute)
     {
         $column = $this->tableColumns[$attribute];
@@ -89,26 +184,41 @@ abstract class Grid
         return true;
     }
 
+    /**
+     * @return string
+     */
     public function getOrderBy()
     {
         return $this->orderBy;
     }
 
+    /**
+     * @return string
+     */
     public function getTableClass()
     {
         return $this->tableClass ?? 'table table-small-font max-col min-col table-1';
     }
 
+    /**
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
     public function getPaginator()
     {
         return $this->paginator;
     }
 
+    /**
+     * @return bool|mixed
+     */
     public function showPaginationSummary()
     {
         return $this->paginationSummary ?? true;
     }
 
+    /**
+     * @return string
+     */
     private function getPaginationLinkView()
     {
         return 'rufaidulk::pagination.bootstrap4';
@@ -119,6 +229,9 @@ abstract class Grid
         $this->filters = (new FilterRow($this->tableColumns))->handle();
     }
 
+    /**
+     * @throws \UnexpectedValueException
+     */
     private function setColumns()
     {
         $this->tableColumns = $this->columns();
@@ -166,6 +279,9 @@ abstract class Grid
         }
     }
 
+    /**
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
     private function getQueryResult()
     {
         if (! empty($this->filterParams)) {
@@ -184,6 +300,9 @@ abstract class Grid
         list($this->query, $this->filters) = $filterQuery->handle();
     }
 
+    /**
+     * @return int
+     */
     private function getPageSize()
     {
         if ($this->pageSize) 
@@ -198,6 +317,11 @@ abstract class Grid
         return self::DEFAULT_PAGE_SIZE;
     }
 
+    /**
+     * @param \Illuminate\Database\Eloquent\Model $model
+     * 
+     * @return string
+     */
     private function getActionButtons($model)
     {
         $actionHtml = '';
@@ -224,11 +348,17 @@ abstract class Grid
         }
     }
     
+    /**
+     * @return int
+     */
     private function getStartingIndex()
     {
         return ($this->getPaginator()->currentpage() - 1 ) * $this->getPaginator()->perpage() + 1;
     }
 
+    /**
+     * @return string
+     */
     public function scripts()
     {
         $scripts =<<<'EOT'

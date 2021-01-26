@@ -4,9 +4,24 @@ namespace Rufaidulk\DataGrid\Filters;
 
 final class FilterQuery
 {
+    /**
+     * @var \Illuminate\Database\Eloquent\Builder
+     */
     private $query;
+
+    /**
+     * @var array
+     */
     private $filters;
+
+    /**
+     * @var array
+     */
     private $tableColumns;
+
+    /**
+     * @var array
+     */
     private $filterParams;
     
     public function __construct($tableColumns, $filters, $filterParams, $query)
@@ -17,6 +32,9 @@ final class FilterQuery
         $this->filterParams = $filterParams;
     }
 
+    /**
+     * @return array
+     */
     public function handle()
     {
         $this->filterQuery();
@@ -49,16 +67,27 @@ final class FilterQuery
         $this->applySorting();
     }
 
+    /**
+     * @return bool
+     */
     private function filterParamHasAttribute($attribute)
     {
         return array_key_exists($attribute, $this->filterParams);
     }
 
+    /**
+     * @return bool
+     */
     private function columnHasFilterOption($column)
     {
         return array_key_exists('filterOptions', $column) && ! empty($column['filterOptions']);
     }
 
+    /**
+     * @param array $column
+     * 
+     * @return bool
+     */
     private function columnHasFilter($column)
     {
         if (! array_key_exists('filter', $column) || ! is_bool($column['filter'])) {
@@ -68,6 +97,12 @@ final class FilterQuery
         return true;
     }
 
+    /**
+     * @param array $filterOptions
+     * @param string $attribute
+     * 
+     * @return void
+     */
     private function applyFilterByFilterOptions($filterOptions, $attribute)
     {
         if (empty($this->filterParams[$attribute])) {

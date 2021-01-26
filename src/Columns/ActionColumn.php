@@ -6,10 +6,31 @@ use InvalidArgumentException;
 
 final class ActionColumn
 {
+    /**
+     * action config
+     * 
+     * @var array
+     */
     private $config;
+
+    /**
+     * @var \Illuminate\Database\Eloquent\Model
+     */
     private $model;
+
+    /**
+     * @var array
+     */
     private $actions;
+
+    /**
+     * @var string
+     */
     private $actionHtml;
+
+    /**
+     * @var string
+     */
     private $customActionHtml;
 
     public function __construct($config, $model)
@@ -21,6 +42,9 @@ final class ActionColumn
         $this->setActions();
     }
     
+    /**
+     * @return string
+     */
     public function render()
     {
         $this->createActionColumn();
@@ -85,6 +109,9 @@ final class ActionColumn
         $this->actionHtml = $resultHtml;
     }
 
+    /**
+     * @return string
+     */
     private function getActionViewHtml()
     {
         return $this->actionHtml . $this->customActionHtml;
@@ -99,11 +126,19 @@ final class ActionColumn
         }
     }
 
+    /**
+     * @return array
+     */
     private function getDefaultActions()
     {
         return ['view', 'update', 'delete'];
     }
 
+    /**
+     * @param string
+     * 
+     * @throws \InvalidArgumentException
+     */
     private function appendCustomAction($action)
     {
         if (! isset($this->config[$action])) {

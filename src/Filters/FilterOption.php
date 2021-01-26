@@ -12,10 +12,29 @@ class FilterOption
     const OPERATOR_LIKE = 'like';
     const OPERATOR_EQUALS = '=';
 
+    /**
+     * @var string
+     */
     private $field;
+
+    /**
+     * @var string
+     */
     private $type;
+
+    /**
+     * @var string
+     */
     private $attribute;
+
+    /**
+     * @var string
+     */
     private $operator;
+
+    /**
+     * @var array
+     */
     private $selectOptions;
 
     
@@ -27,6 +46,9 @@ class FilterOption
         $this->configProperties($properties);
     }
 
+    /**
+     * @return array
+     */
     public function handle()
     {
         return [
@@ -37,11 +59,22 @@ class FilterOption
         ];
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder $query
+     * @param string $param
+     * 
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function addFilterWhere($query, $param)
     {
         return $query->where($this->attribute, $this->operator, $param);
     }
 
+    /**
+     * @param array $properties
+     * 
+     * @throws \InvalidArgumentException
+     */
     private function configProperties($properties)
     {
         if (isset($properties['attribute'])) {
