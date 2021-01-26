@@ -14,6 +14,9 @@ abstract class Grid
 
     public $pageSize;
     public $tableClass;
+    public $wrapperClass;
+    public $paginationSummary;
+    public $paginationSummaryClass;
 
     private $query;
     private $orderBy;
@@ -96,6 +99,16 @@ abstract class Grid
         return $this->tableClass ?? 'table table-small-font max-col min-col table-1';
     }
 
+    public function getPaginator()
+    {
+        return $this->paginator;
+    }
+
+    public function showPaginationSummary()
+    {
+        return $this->paginationSummary ?? true;
+    }
+
     private function getPaginationLinkView()
     {
         return 'rufaidulk::pagination.bootstrap4';
@@ -124,10 +137,10 @@ abstract class Grid
             return;
         }
         
+        $index = $this->getStartingIndex();
         foreach ($result as $key => $value)
         {
             $html = "<tr data-key='114'>";
-            $index = $key + 1;
             $html .= "<td>{$index}</td>";
 
             foreach ($this->tableColumns as $attribute => $column)
@@ -149,6 +162,7 @@ abstract class Grid
             $this->tableBody .= "<td>{$actionButtons}</td>";
             
             $this->tableBody .= "</tr>";
+            $index++;
         }
     }
 
@@ -208,6 +222,11 @@ abstract class Grid
         if (isset($this->filterParams['orderby']) && $this->filterParams['orderby'] == 'asc') {
             $this->orderBy = 'desc';
         }
+    }
+    
+    private function getStartingIndex()
+    {
+        return ($this->getPaginator()->currentpage() - 1 ) * $this->getPaginator()->perpage() + 1;
     }
 
     public function scripts()

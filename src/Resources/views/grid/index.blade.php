@@ -1,4 +1,11 @@
-<div class="">
+<div class="{{ $grid->wrapperClass }}">
+    @if ($grid->showPaginationSummary())
+        <div classs="{{ $grid->paginationSummaryClass }}">
+            Showing {{ ($grid->getPaginator()->currentpage() - 1 ) * $grid->getPaginator()->perpage() + 1 }}
+            to {{ $grid->getPaginator()->currentpage() * $grid->getPaginator()->perpage() }}
+            of {{ $grid->getPaginator()->total() }} items.
+        </div>
+    @endif
     <table class="{{ $grid->getTableClass() }}">
         <thead>
             <tr>
