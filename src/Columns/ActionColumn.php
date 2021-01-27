@@ -54,59 +54,68 @@ final class ActionColumn
 
     public function createActionColumn()
     {
-        $resultHtml = $form = $onclick = '';
-
+        $resultHtml = '';
+        
         foreach ($this->actions as $action)
         {
-            switch ($action)
-            {
-                case 'view':
-                    $custom = false;
-                    $title = 'View';
-                    $btnClass= 'btn-success';
-                    $iconName = 'ion-eye';
-                    $url = route($this->config['routePrefix'] . '.show', $this->model);
-                    break;
+            if (array_key_exists($action, $this->config) || ! in_array($action, $this->getDefaultActions())) {
+                if (! is_callable($this->config[$action])) {
+                    throw new InvalidArgumentException('Custom actions must be a callable');
+                }
 
-                case 'update':
-                    $custom = false;
-                    $title = 'Update';
-                    $btnClass= 'btn-info';
-                    $iconName = 'ion-edit';
-                    $url = route($this->config['routePrefix'] . '.edit', $this->model);
-                    break;
-
-                case 'delete':
-                    $custom = false;
-                    $title = 'Delete';
-                    $btnClass= 'btn-danger';
-                    $iconName = 'ion-trash-a';
-                    $url = '#';
-                    $formId = $this->model->id . '-delete-form';
-                    $onclick = "confirmDelete(\"{$formId}\")";
-                    $formUrl = route($this->config['routePrefix'] . '.destroy', $this->model);
-                    $form = '<form id="' . $formId . '" action="' . $formUrl . '" method="POST" style="display: none;">
-                                ' . csrf_field() . '
-                                ' . method_field("DELETE") . '
-                            </form>';
-                    break;
-                
-                default:
-                    $custom = true;
-                    $this->appendCustomAction($action);
+                $resultHtml .= call_user_func($this->config[$action], $this->model);
             }
-
-            if ($custom) {
-                continue;
+            else {
+                $resultHtml .= $this->createDefaultButton($action);
             }
-            
-            $btn = "<a href='{$url}' class='btn {$btnClass} btn-icon waves-effect waves-light m-b-5 mr-1' ";
-            $btn .= $action === 'delete' ? "onclick='{$onclick}' title='{$title}'>" : "title='{$title}'>";
-            $btn .= "<span class='{$iconName}'></span></a>";
-            $resultHtml .= $btn . $form;
         }
         
         $this->actionHtml = $resultHtml;
+    }
+
+    /**
+     * @param string $action
+     */
+    private function createDefaultButton($action)
+    {
+        $form = $onclick = '';
+
+        switch ($action)
+        {
+            case 'view':
+                $title = 'View';
+                $btnClass= 'btn-success';
+                $iconName = 'ion-eye';
+                $url = route($this->config['routePrefix'] . '.show', $this->model);
+                break;
+
+            case 'update':
+                $title = 'Update';
+                $btnClass= 'btn-info';
+                $iconName = 'ion-edit';
+                $url = route($this->config['routePrefix'] . '.edit', $this->model);
+                break;
+
+            case 'delete':
+                $title = 'Delete';
+                $btnClass= 'btn-danger';
+                $iconName = 'ion-trash-a';
+                $url = '#';
+                $formId = $this->model->id . '-delete-form';
+                $onclick = "confirmDelete(\"{$formId}\")";
+                $formUrl = route($this->config['routePrefix'] . '.destroy', $this->model);
+                $form = '<form id="' . $formId . '" action="' . $formUrl . '" method="POST" style="display: none;">
+                            ' . csrf_field() . '
+                            ' . method_field("DELETE") . '
+                        </form>';
+                break;
+        }
+        
+        $btn = "<a href='{$url}' class='btn {$btnClass} btn-icon waves-effect waves-light m-b-5 mr-1' ";
+        $btn .= $action === 'delete' ? "onclick='{$onclick}' title='{$title}'>" : "title='{$title}'>";
+        $btn .= "<span class='{$iconName}'></span></a>";
+
+        return $btn . $form;
     }
 
     /**
