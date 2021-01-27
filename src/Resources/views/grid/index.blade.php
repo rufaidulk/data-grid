@@ -2,7 +2,11 @@
     @if ($grid->showPaginationSummary())
         <div classs="{{ $grid->paginationSummaryClass }}">
             Showing {{ ($grid->getPaginator()->currentpage() - 1 ) * $grid->getPaginator()->perpage() + 1 }}
-            to {{ $grid->getPaginator()->currentpage() * $grid->getPaginator()->perpage() }}
+                @if ($grid->getPaginator()->currentpage() * $grid->getPaginator()->perpage() < $grid->getPaginator()->total())
+                    to {{ $grid->getPaginator()->currentpage() * $grid->getPaginator()->perpage() }}
+                @else
+                    to {{ $grid->getPaginator()->total() }}
+                @endif
             of {{ $grid->getPaginator()->total() }} items.
         </div>
     @endif
