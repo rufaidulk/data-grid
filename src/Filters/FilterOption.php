@@ -67,6 +67,10 @@ class FilterOption
      */
     public function addFilterWhere($query, $param)
     {
+        if ($this->operator == self::OPERATOR_LIKE) {
+            return $query->where($this->attribute, $this->operator, '%' . $param . '%');
+        }
+        
         return $query->where($this->attribute, $this->operator, $param);
     }
 
