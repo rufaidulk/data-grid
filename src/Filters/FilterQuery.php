@@ -72,7 +72,7 @@ final class FilterQuery
      */
     private function filterParamHasAttribute($attribute)
     {
-        return array_key_exists($attribute, $this->filterParams);
+        return array_key_exists($attribute, $this->filterParams) && ! empty($this->filterParams[$attribute]);
     }
 
     /**
