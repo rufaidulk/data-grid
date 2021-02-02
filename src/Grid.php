@@ -267,12 +267,12 @@ abstract class Grid
                     $data = $value[$attribute];
                 }
 
-                $html .= "<td>{$data}</td>";
+                $html .= $this->applyHtmlOptions($data, $attribute, $column);
             }
 
             $this->tableBody .= $html;
-            $actionButtons = $this->getActionButtons($result[$key]);
-            $this->tableBody .= "<td>{$actionButtons}</td>";
+            $actionColumnHtml = $this->getActionButtons($result[$key]);
+            $this->tableBody .= $actionColumnHtml;
             
             $this->tableBody .= "</tr>";
             $index++;
@@ -336,7 +336,33 @@ abstract class Grid
 
         $actionHtml = (new ActionColumn($this->tableColumns['action'], $model))->render();
 
+        if (isset($this->tableColumns['action']['contentCssClass'])) {
+            $cssClasses = $this->tableColumns['action']['contentCssClass'];
+            $actionHtml = "<td class='{$cssClasses}'>{$actionHtml}</td>";
+        }
+        else {
+            $actionHtml = "<td>{$actionHtml}</td>";
+        }
+
         return $actionHtml;
+    }
+
+    /**
+     * @param string $data
+     * @param string $attribute
+     * @param array $column
+     * 
+     * @return string 
+     */
+    private function applyHtmlOptions($data, $attribute, $column)
+    {
+        if (! isset($column['contentCssClass']) || $attribute == 'action') {
+            return "<td>{$data}</td>";
+        }
+
+        $cssClasses = $column['contentCssClass'];
+
+        return "<td class='{$cssClasses}'>{$data}</td>";
     }
 
     private function restoreSortOrder()
