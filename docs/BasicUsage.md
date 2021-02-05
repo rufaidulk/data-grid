@@ -1,7 +1,7 @@
 ## Basic Usage
 1. Create data grid class inside the app folder that extends **\Rufaidulk\DataGrid\Grid.php**, which has 2 abstract methods **gridQuery()** and **columns()**.
 
-```
+```php
 <?php
 
 namespace App\DataGrids;
@@ -67,7 +67,7 @@ class CityGrid extends Grid
 }
 ```
 2. In the controller **CityController.php**
-```
+```php
 /**
  * Display a listing of the resource.
  *
@@ -83,11 +83,12 @@ public function index()
 ```
 
 3. Finally in the view file
-```
+```php
 <div class="col-md-12">
     {!! $grid->render() !!}
 </div>
 
 @push('scripts')
     {!! $grid->scripts() !!}
-@endpush```
+@endpush
+```
