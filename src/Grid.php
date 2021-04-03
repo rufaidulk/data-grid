@@ -55,6 +55,13 @@ abstract class Grid
     public $paginationSummaryClass;
 
     /**
+     * Controls visibility filter row
+     * 
+     * @var bool
+     */
+    public $showFilters = true;
+
+    /**
      * Data source query
      * 
      * @var \Illuminate\Database\Eloquent\Builder
@@ -226,6 +233,14 @@ abstract class Grid
     public function showPaginationSummary()
     {
         return $this->paginationSummary ?? true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasFilters()
+    {
+        return $this->showFilters;
     }
 
     /**

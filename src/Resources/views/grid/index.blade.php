@@ -31,6 +31,8 @@
 
                 <th class="action-column">&nbsp;</th>
             </tr>
+
+            @if ($grid->hasFilters())
             <tr class="filters">
                 <form id="grid-filter" action="{{ route(request()->route()->getName()) }}" method="GET"></form>
                 @foreach ($grid->getTableFilters() as $filter)
@@ -56,6 +58,8 @@
                     </button>
                 </td>
             </tr>
+            @endif
+            
         </thead>
         <tbody>
             {!! $grid->getTableBody() !!}
