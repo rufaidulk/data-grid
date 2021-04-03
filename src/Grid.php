@@ -20,6 +20,13 @@ abstract class Grid
     public $pageSize;
 
     /**
+     * Pagination query param name
+     * 
+     * @var string
+     */
+    public $pageParam;
+
+    /**
      * CSS class selector for html table tag
      * 
      * @var string
@@ -96,6 +103,11 @@ abstract class Grid
      */
     private $filterParams;
 
+    /**
+     * Creates a new instance
+     * 
+     * @return void
+     */
     public function __construct($filterParams = [])
     {
         $this->filterParams = $filterParams;
@@ -288,11 +300,30 @@ abstract class Grid
             $this->applyFilters();
         }
 
-        $this->paginator = $this->query->paginate($this->getPageSize())->withQueryString();
+        $this->paginator = $this->query->paginate($this->getPageSize(), ['*'], $this->getPageParamName())
+                                ->withQueryString();
         
         return $this->paginator;
     }
 
+    /**
+     * Set the pagination param for current pagination instance.
+     * Default will be 'page'
+     * 
+     * @return string
+     */
+    private function getPageParamName()
+    {
+        if ($this->pageParam) {
+            return $this->pageParam;
+        }
+
+        return 'page';
+    }
+
+    /**
+     * @return void
+     */
     private function applyFilters()
     {
         $filterQuery = new FilterQuery($this->tableColumns, $this->filters, $this->filterParams, $this->query);
