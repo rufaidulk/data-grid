@@ -86,14 +86,14 @@ final class ActionColumn
                 $title = 'View';
                 $btnClass= 'btn-success';
                 $iconName = 'ion-eye';
-                $url = route($this->config['routePrefix'] . '.show', $this->model);
+                $url = $this->getActionRoute('show');
                 break;
 
             case 'update':
                 $title = 'Update';
                 $btnClass= 'btn-info';
                 $iconName = 'ion-edit';
-                $url = route($this->config['routePrefix'] . '.edit', $this->model);
+                $url = $this->getActionRoute('edit');
                 break;
 
             case 'delete':
@@ -103,7 +103,7 @@ final class ActionColumn
                 $url = '#';
                 $formId = $this->model->id . '-delete-form';
                 $onclick = "confirmDelete(\"{$formId}\")";
-                $formUrl = route($this->config['routePrefix'] . '.destroy', $this->model);
+                $formUrl = $this->getActionRoute('destroy');
                 $form = '<form id="' . $formId . '" action="' . $formUrl . '" method="POST" style="display: none;">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '
@@ -133,6 +133,28 @@ final class ActionColumn
         if (isset($this->config['buttons'])) {
             $this->actions = $this->config['buttons'];
         }
+    }
+
+    /**
+     * @param string $action
+     * 
+     * @return string
+     */
+    private function getActionRoute($action)
+    {
+        $routeName = $this->config['routePrefix'] . '.' . $action;
+        if (isset($this->config['routeParams'])) 
+        {
+            if (! is_callable($this->config['routeParams'])) {
+                throw new InvalidArgumentException('Route params must be a callable');
+            }
+
+            $routeParams = call_user_func($this->config['routeParams'], $this->model);
+        
+            return route($routeName, $routeParams);
+        }
+
+        return route($routeName, $this->model);
     }
 
     /**

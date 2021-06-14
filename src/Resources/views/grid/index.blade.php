@@ -18,7 +18,7 @@
                 @foreach ($grid->getTableHeaders() as $attribute => $label)
                     <th>
                         @if ($grid->isSortable($attribute))
-                            <a href="{{ route(request()->route()->getName(), ['sort' => $attribute, 'orderby' => $grid->getOrderBy()]) }}">
+                            <a href="{{ route( request()->route()->getName(), array_merge(request()->route()->parameters, ['sort' => $attribute, 'orderby' => $grid->getOrderBy()]) ) }}">
                                 {{ $label }}
                             </a>
                         @else
@@ -34,7 +34,7 @@
 
             @if ($grid->hasFilters())
             <tr class="filters">
-                <form id="grid-filter" action="{{ route(request()->route()->getName()) }}" method="GET"></form>
+                <form id="grid-filter" action="{{ route(request()->route()->getName(), request()->route()->parameters) }}" method="GET"></form>
                 @foreach ($grid->getTableFilters() as $filter)
                     @if (empty($filter))
                         <td>&nbsp;</td>
