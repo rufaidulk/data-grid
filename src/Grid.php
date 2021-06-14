@@ -27,6 +27,13 @@ abstract class Grid
     public $pageParam;
 
     /**
+     * Pagination path
+     * 
+     * @var string
+     */
+    public $paginationPath;
+
+    /**
      * CSS class selector for html table tag
      * 
      * @var string
@@ -317,6 +324,10 @@ abstract class Grid
 
         $this->paginator = $this->query->paginate($this->getPageSize(), ['*'], $this->getPageParamName())
                                 ->withQueryString();
+    
+        if ($this->paginationPath) {
+            $this->paginator->withPath($this->paginationPath);
+        }
         
         return $this->paginator;
     }
