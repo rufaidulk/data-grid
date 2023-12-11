@@ -85,25 +85,25 @@ final class ActionColumn
             case 'view':
                 $title = 'View';
                 $btnClass= 'btn-success';
-                $iconName = 'ion-eye';
-                $url = $this->getActionRoute('show');
+                $iconName = 'bi bi-eye';
+                $url = route($this->config['routePrefix'] . '.show', $this->model);
                 break;
 
             case 'update':
                 $title = 'Update';
-                $btnClass= 'btn-info';
-                $iconName = 'ion-edit';
-                $url = $this->getActionRoute('edit');
+                $btnClass= 'btn-warning';
+                $iconName = 'bi bi-pencil';
+                $url = route($this->config['routePrefix'] . '.edit', $this->model);
                 break;
 
             case 'delete':
                 $title = 'Delete';
                 $btnClass= 'btn-danger';
-                $iconName = 'ion-trash-a';
+                $iconName = 'bi bi-trash3';
                 $url = '#';
                 $formId = $this->model->id . '-delete-form';
                 $onclick = "confirmDelete(\"{$formId}\")";
-                $formUrl = $this->getActionRoute('destroy');
+                $formUrl = route($this->config['routePrefix'] . '.destroy', $this->model);
                 $form = '<form id="' . $formId . '" action="' . $formUrl . '" method="POST" style="display: none;">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '
@@ -111,9 +111,9 @@ final class ActionColumn
                 break;
         }
         
-        $btn = "<a href='{$url}' class='btn {$btnClass} btn-icon waves-effect waves-light m-b-5 mr-1' ";
+        $btn = "<a href='{$url}' class='btn {$btnClass} btn-icon waves-effect waves-light me-1' ";
         $btn .= $action === 'delete' ? "onclick='{$onclick}' title='{$title}'>" : "title='{$title}'>";
-        $btn .= "<span class='{$iconName}'></span></a>";
+        $btn .= "<i class='{$iconName}'></i></a>";
 
         return $btn . $form;
     }
@@ -133,28 +133,6 @@ final class ActionColumn
         if (isset($this->config['buttons'])) {
             $this->actions = $this->config['buttons'];
         }
-    }
-
-    /**
-     * @param string $action
-     * 
-     * @return string
-     */
-    private function getActionRoute($action)
-    {
-        $routeName = $this->config['routePrefix'] . '.' . $action;
-        if (isset($this->config['routeParams'])) 
-        {
-            if (! is_callable($this->config['routeParams'])) {
-                throw new InvalidArgumentException('Route params must be a callable');
-            }
-
-            $routeParams = call_user_func($this->config['routeParams'], $this->model);
-        
-            return route($routeName, $routeParams);
-        }
-
-        return route($routeName, $this->model);
     }
 
     /**
