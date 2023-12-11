@@ -292,6 +292,9 @@ abstract class Grid
 
             foreach ($this->tableColumns as $attribute => $column)
             {
+                if ($attribute == 'action') {
+                    continue;
+                }
                 $data = '';
                 if (array_key_exists('value', $column) && is_callable($column['value']))
                 {
