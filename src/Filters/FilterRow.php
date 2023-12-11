@@ -78,7 +78,7 @@ final class FilterRow
     private function columnHasFilter($column)
     {
         if (! array_key_exists('filter', $column) || ! is_bool($column['filter'])) {
-            array_push($this->filterView, null);
+            // array_push($this->filterView, null);
             return false;
         }
 
